@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#AFED56</color>
     <color name="colorAccent">#AFED56</color>
     <color name="colorTheme">#AFED56</color>
+    <color name="xuanfu">#66CD00</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="darkgrey">#6C6C6C</color>
@@ -14,12 +15,31 @@
     <color name="blueA">#4287FF</color>
     <color name="gray_white">#44cccccc</color>
     <color name="gray">#ddd</color>
+    <color name="grey_2">#E8E8E8</color>
+
+    <color name="color999999">#999999</color>
+    <color name="title_bar">#0c7ed9</color>
+    <color name="red_dark">#b52121</color>
+    <color name="red_light">#cd2222</color>
+    <color name="gray_bg">#eeeeec</color>
+    <color name="color_d2">#c1c1c1</color>
+    <color name="red_text">#ff0000</color>
+    <color name="grey_text">#999999</color>
+    <color name="black_text">#666666</color>
+    <color name="blue_text">#007aff</color>
+    <color name="vertical_sep_color">#cccccc</color>
 
     <color name="item_text_title_color">#cccccc</color>
     <color name="item_text_title_bg">#F6F6F6</color>
 
     <color name="alpha_black">#49000000</color>
     <color name="alpha_white">#49ffffff</color>
+    <color name="colorWhite">#8e8eda</color>
+    <color name="colorBlack">#000000</color>
+    <color name="colorBlank">#faf6f7</color>
+    <color name="black_1">#333333</color>
+    <color name="black_2">#404040</color>
+    <color name="black_3">#1C1C1C</color>
 
 
     <color name="act_background">#efefef</color>
@@ -27,6 +47,10 @@
     <drawable name="transparent">#00000000</drawable>
     <color name="transparent">#00000000</color>
     <color name="gary">#898989</color>
+    <color name="red">#FF0000</color>
+    <color name="yellow">#FFFF00</color>
+
+    <color name="grey_li">#363636</color>
 
 
     <!--正文文字颜色-->

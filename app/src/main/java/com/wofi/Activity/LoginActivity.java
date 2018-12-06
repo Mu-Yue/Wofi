@@ -3,6 +3,8 @@ package com.wofi.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -16,9 +18,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.wofi.Clause;
 import com.wofi.R;
+import com.wofi.utils.Interaction;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -39,6 +43,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Timer tm;
     private String country="86";
     private int TIME=60;
+    private VideoView videoView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +57,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         tx1= (EditText) findViewById(R.id.etNum);
         tx2= (EditText) findViewById(R.id.etPin);
 
+        bt2.getBackground().setAlpha(240);
+        bt1.getBackground().setAlpha(240);
+
         image.setFocusable(true);
         image.setFocusableInTouchMode(true);
         image.requestFocus();
@@ -61,6 +69,27 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         bt2.setOnClickListener(this);
         bt3.setOnClickListener(this);
         bt4.setOnClickListener(this);
+
+        videoView = (VideoView) findViewById(R.id.videoView);
+        final String videoPath = Uri.parse("android.resource://" + getPackageName() + "/"+R.raw.wrp).toString();
+        videoView.setVideoPath(videoPath);
+        //开始播放
+        videoView.start();
+        //设置监听是否准备好
+        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mp.start();
+                mp.setLooping(true);
+            }});
+        //设置监听是否播放完
+        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                videoView.setVideoPath(videoPath);
+                videoView.start();
+            }
+        });
 
         SMSSDK.registerEventHandler(eh); //注册短信回调（记得销毁，避免泄露内存）
     }
@@ -86,7 +115,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     if (matcher.find()) {//匹配手机号是否存在
                         SMSSDK.getVerificationCode(country, phonenumber);
                         //做倒计时操作
-                        Toast.makeText(LoginActivity.this, "已发送" , Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(LoginActivity.this, "已发送" , Toast.LENGTH_SHORT).show();
                         bt1.setEnabled(false);
                         bt2.setEnabled(true);
                         tm = new Timer();
@@ -129,7 +158,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     // 通过匹配器查找是否有该字符，不可重复调用重复调用matcher.find()
                     if (matcher.find()) {//匹配手机号是否存在
                         SMSSDK.getVoiceVerifyCode(country,phonenumber);
-                        Toast.makeText(LoginActivity.this, "已发送" , Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(LoginActivity.this, "已发送" , Toast.LENGTH_SHORT).show();
                     } else {
                         toast("手机号格式错误");
                     }
@@ -162,9 +191,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 tm.cancel();//取消任务
                 tt.cancel();//取消任务
                 TIME = 60;//时间重置
-                bt1.setText("重新发送验证码");
+                bt1.setText("秒");
+                if(TIME == 1)
+                {
+                    bt1.setText("0秒");
+                }
             }else {
-                bt1.setText(TIME + "重新发送验证码");
+                bt1.setText(TIME + "秒");
             }
         }
     };
@@ -173,8 +206,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         public void afterEvent(int event, int result, Object data) {
             if (result == SMSSDK.RESULT_COMPLETE) {
                 if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
-                    toast("验证成功");
-                    //number=tx1.getText().toString().trim().replaceAll("(\\d{3})\\d{4}(\\d{4})", "$1****$2");
+                    //toast("验证成功");
 
                     //将本机mac地址作为token保存
                     SharedPreferences sp=LoginActivity.this.getSharedPreferences("Login",Context.MODE_PRIVATE);
@@ -182,7 +214,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     editor.putString("token",getLocalMacAddress());
                     editor.putString("Username",tx1.getText().toString().trim().replaceAll("/s",""));
                     editor.commit();
-                    Log.e("听说名字长点才能找的到",sp.getString("token",""));
+                    //Log.e("听说名字长点才能找的到",sp.getString("token",""));
+                    final String username=tx1.getText().toString().trim();
+                    Interaction.register(username);
                     Intent intent=new Intent(LoginActivity.this,MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);

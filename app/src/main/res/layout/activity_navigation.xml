@@ -9,7 +9,7 @@
         android:id="@+id/ll_rl_toplayput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/blueA"
+        android:background="@color/black"
         android:padding="5dp">
         <ImageView
             android:id="@+id/rl_iv_back"

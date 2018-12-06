@@ -7,6 +7,6 @@
         android:bottomLeftRadius="2dp">
     </corners>
     <solid
-        android:color="@color/blueA">
+        android:color="@color/black">
     </solid>
 </shape>

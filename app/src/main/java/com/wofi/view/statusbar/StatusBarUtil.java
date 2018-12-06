@@ -14,19 +14,12 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
-/**
- * Created by Jaeger on 16/2/14.
- * <p>
- * Email: chjie.jaeger@gmail.com
- * GitHub: https://github.com/laobie
- */
 public class StatusBarUtil {
 
     public static final int DEFAULT_STATUS_BAR_ALPHA = 112;
 
     /**
      * 设置状态栏颜色
-     *
      * @param activity 需要设置的 activity
      * @param color    状态栏颜色值
      */
@@ -35,8 +28,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 设置状态栏颜色
-     *
      * @param activity       需要设置的activity
      * @param color          状态栏颜色值
      * @param statusBarAlpha 状态栏透明度
@@ -62,8 +53,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 设置状态栏纯色 不加半透明效果
-     *
      * @param activity 需要设置的 activity
      * @param color    状态栏颜色值
      */
@@ -72,8 +61,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 设置状态栏颜色(5.0以下无半透明效果,不建议使用)
-     *
      * @param activity 需要设置的 activity
      * @param color    状态栏颜色值
      */
@@ -96,10 +83,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 使状态栏半透明
-     * <p>
-     * 适用于图片作为背景的界面,此时需要图片填充到状态栏
-     *
      * @param activity 需要设置的activity
      */
     public static void setTranslucent(Activity activity) {
@@ -107,10 +90,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 使状态栏半透明
-     * <p>
-     * 适用于图片作为背景的界面,此时需要图片填充到状态栏
-     *
      * @param activity       需要设置的activity
      * @param statusBarAlpha 状态栏透明度
      */
@@ -123,10 +102,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 针对根布局是 CoordinatorLayout, 使状态栏半透明
-     * <p>
-     * 适用于图片作为背景的界面,此时需要图片填充到状态栏
-     *
      * @param activity       需要设置的activity
      * @param statusBarAlpha 状态栏透明度
      */
@@ -139,8 +114,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 设置状态栏全透明
-     *
      * @param activity 需要设置的activity
      */
     public static void setTransparent(Activity activity) {
@@ -152,10 +125,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 使状态栏透明(5.0以上半透明效果,不建议使用)
-     * <p>
-     * 适用于图片作为背景的界面,此时需要图片填充到状态栏
-     *
      * @param activity 需要设置的activity
      */
     @Deprecated
@@ -168,8 +137,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 为DrawerLayout 布局设置状态栏变色
-     *
      * @param activity     需要设置的activity
      * @param drawerLayout DrawerLayout
      * @param color        状态栏颜色值
@@ -179,8 +146,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 为DrawerLayout 布局设置状态栏颜色,纯色
-     *
      * @param activity     需要设置的activity
      * @param drawerLayout DrawerLayout
      * @param color        状态栏颜色值
@@ -190,8 +155,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 为DrawerLayout 布局设置状态栏变色
-     *
      * @param activity       需要设置的activity
      * @param drawerLayout   DrawerLayout
      * @param color          状态栏颜色值
@@ -235,8 +198,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 为DrawerLayout 布局设置状态栏变色(5.0以下无半透明效果,不建议使用)
-     *
      * @param activity     需要设置的activity
      * @param drawerLayout DrawerLayout
      * @param color        状态栏颜色值
@@ -302,8 +263,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 为 DrawerLayout 布局设置状态栏透明
-     *
      * @param activity     需要设置的activity
      * @param drawerLayout DrawerLayout
      */
@@ -312,8 +271,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 为 DrawerLayout 布局设置状态栏透明
-     *
      * @param activity     需要设置的activity
      * @param drawerLayout DrawerLayout
      */
@@ -326,8 +283,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 为 DrawerLayout 布局设置状态栏透明
-     *
      * @param activity     需要设置的activity
      * @param drawerLayout DrawerLayout
      */
@@ -358,8 +313,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 为 DrawerLayout 布局设置状态栏透明(5.0以上半透明效果,不建议使用)
-     *
      * @param activity     需要设置的activity
      * @param drawerLayout DrawerLayout
      */
@@ -381,8 +334,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 为头部是 ImageView 的界面设置状态栏全透明
-     *
      * @param activity       需要设置的activity
      * @param needOffsetView 需要向下偏移的 View
      */
@@ -391,8 +342,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 为头部是 ImageView 的界面设置状态栏透明(使用默认透明度)
-     *
      * @param activity       需要设置的activity
      * @param needOffsetView 需要向下偏移的 View
      */
@@ -401,8 +350,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 为头部是 ImageView 的界面设置状态栏透明
-     *
      * @param activity       需要设置的activity
      * @param statusBarAlpha 状态栏透明度
      * @param needOffsetView 需要向下偏移的 View
@@ -444,8 +391,6 @@ public class StatusBarUtil {
 
 
     /**
-     * 为 fragment 头部是 ImageView 的设置状态栏透明
-     *
      * @param activity       fragment 对应的 activity
      * @param needOffsetView 需要向下偏移的 View
      */
@@ -454,8 +399,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 为 fragment 头部是 ImageView 的设置状态栏透明
-     *
      * @param activity       fragment 对应的 activity
      * @param needOffsetView 需要向下偏移的 View
      */
@@ -464,8 +407,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 为 fragment 头部是 ImageView 的设置状态栏透明
-     *
      * @param activity       fragment 对应的 activity
      * @param statusBarAlpha 状态栏透明度
      * @param needOffsetView 需要向下偏移的 View
@@ -489,8 +430,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 添加半透明矩形条
-     *
      * @param activity       需要设置的 activity
      * @param statusBarAlpha 透明值
      */
@@ -504,8 +443,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 生成一个和状态栏大小相同的彩色矩形条
-     *
      * @param activity 需要设置的 activity
      * @param color    状态栏颜色值
      * @return 状态栏矩形条
@@ -521,8 +458,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 生成一个和状态栏大小相同的半透明矩形条
-     *
      * @param activity 需要设置的activity
      * @param color    状态栏颜色值
      * @param alpha    透明值
@@ -563,8 +498,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 创建半透明矩形 View
-     *
      * @param alpha 透明值
      * @return 半透明 View
      */
@@ -579,8 +512,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 获取状态栏高度
-     *
      * @param context context
      * @return 状态栏高度
      */
@@ -591,8 +522,6 @@ public class StatusBarUtil {
     }
 
     /**
-     * 计算状态栏颜色
-     *
      * @param color color值
      * @param alpha alpha值
      * @return 最终的状态栏颜色

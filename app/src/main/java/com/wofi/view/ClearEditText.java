@@ -13,9 +13,6 @@ import android.view.View;
 
 import com.wofi.R;
 
-/**
- * Created by Lilu
- */
 public class ClearEditText extends AppCompatEditText implements View.OnTouchListener, View.OnFocusChangeListener, TextWatcher {
 
     private Drawable mClearTextIcon;
@@ -39,7 +36,7 @@ public class ClearEditText extends AppCompatEditText implements View.OnTouchList
 
     private void init(final Context context) {
         final Drawable drawable = ContextCompat.getDrawable(context, R.drawable.ic_search_clear);
-        final Drawable wrappedDrawable = DrawableCompat.wrap(drawable); //Wrap the drawable so that it can be tinted pre Lollipop
+        final Drawable wrappedDrawable = DrawableCompat.wrap(drawable);
         DrawableCompat.setTint(wrappedDrawable, getCurrentHintTextColor());
         mClearTextIcon = wrappedDrawable;
         mClearTextIcon.setBounds(0, 0, mClearTextIcon.getIntrinsicHeight(), mClearTextIcon.getIntrinsicHeight());

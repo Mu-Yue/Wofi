@@ -17,7 +17,6 @@ import java.util.Date;
 import java.util.Random;
 
 /**
- * Created by jingbin on 2016/11/22.
  * 获取原生资源
  */
 public class CommonUtils {
@@ -55,9 +54,6 @@ public class CommonUtils {
         return dm.widthPixels;
     }
 
-//	public static void RunOnUiThread(Runnable r) {
-//		CloudReaderApplication.getInstance().getMainLooper().post(r);
-//	}
 
     public static Drawable getDrawable(int resid) {
         return getResoure().getDrawable(resid);

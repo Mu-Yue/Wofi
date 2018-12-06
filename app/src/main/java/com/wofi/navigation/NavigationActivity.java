@@ -137,7 +137,7 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
         mTabLayout.setTabTextColors(Color.LTGRAY, Color.WHITE);
         //设置tab的下划线颜色,默认是粉红色
         mTabLayout.setSelectedTabIndicatorColor(Color.WHITE);
-        mTabLayout.addTab(mTabLayout.newTab().setText("骑车"));
+        mTabLayout.addTab(mTabLayout.newTab().setText("驾车"));
         tvStart = (TextView) findViewById(R.id.rl_tv_start);
         tvEnd = (TextView) findViewById(R.id.rl_tv_end);
         tvNavi = (TextView) findViewById(R.id.rl_tv_navistart);
@@ -236,7 +236,6 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
         routeOverLay.setTrafficLine(false);
         routeOverLay.addToMap();
         routeOverlays.put(routeId, routeOverLay);
-
     }
 
 
@@ -327,7 +326,6 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
             mAMapNavi.selectRouteId(routeOverlays.keyAt(0));
             return;
         }
-
         if (routeIndex >= routeOverlays.size())
             routeIndex = 0;
         //根据选中的路线下标值得到路线ID
@@ -344,7 +342,6 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
         //必须告诉AMapNavi 你最后选择的哪条路
         mAMapNavi.selectRouteId(routeID);
         routeIndex++;
-
     }
 
     /**
@@ -594,7 +591,7 @@ public class NavigationActivity extends AppCompatActivity implements View.OnClic
             mlocationClient.setLocationListener(this);
             //设置为高精度定位模式
             mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-//            mLocationOption.setOnceLocation(true);
+            //mLocationOption.setOnceLocation(true);
             //设置定位参数
             mlocationClient.setLocationOption(mLocationOption);
             // 此方法为每隔固定时间会发起一次定位请求，为了减少电量消耗或网络流量消耗，

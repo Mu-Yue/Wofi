@@ -34,7 +34,6 @@ public class BaseActivity extends Activity implements AMapNaviListener, AMapNavi
     protected NaviLatLng mStartLatlng = new NaviLatLng(39.825934, 116.342972);
     protected final List<NaviLatLng> sList = new ArrayList<NaviLatLng>();
     protected final List<NaviLatLng> eList = new ArrayList<NaviLatLng>();
-    //protected List<NaviLatLng> mWayPointList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +60,7 @@ public class BaseActivity extends Activity implements AMapNaviListener, AMapNavi
 
         //仅仅是停止你当前在说的这句话，一会到新的路口还会再说的
         mTtsManager.stopSpeaking();
-        //停止导航之后，会触及底层stop，然后就不会再有回调了，但是讯飞当前还是没有说完的半句话还是会说完
-        //mAMapNavi.stopNavi();
+
     }
 
     @Override

@@ -26,7 +26,6 @@ public class BaseActivity<SV extends ViewDataBinding> extends AppCompatActivity 
     private LinearLayout llProgressBar;
     private View refresh,empty;
     protected ActivityBaseBinding mBaseBinding;
-    //private AnimationDrawable mAnimationDrawable;
     private boolean setToolBar = true;
 
     protected <T extends View> T getView(int id) {
@@ -43,7 +42,6 @@ public class BaseActivity<SV extends ViewDataBinding> extends AppCompatActivity 
 
         mBaseBinding = DataBindingUtil.inflate(LayoutInflater.from(this), R.layout.activity_base, null, false);
         bindingView = DataBindingUtil.inflate(getLayoutInflater(), layoutResID, null, false);
-        // content
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         bindingView.getRoot().setLayoutParams(params);
         RelativeLayout mContainer = (RelativeLayout) mBaseBinding.getRoot().findViewById(R.id.container);

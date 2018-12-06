@@ -9,9 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 
-/**
- * Created by Administrator on 2016/9/12.
- */
 public class HeadZoomScrollView extends ScrollView {
 
     public HeadZoomScrollView(Context context) {
@@ -26,34 +23,34 @@ public class HeadZoomScrollView extends ScrollView {
         super(context, attrs, defStyleAttr);
     }
 
-    //    用于记录下拉位置
+    //用于记录下拉位置
     private float y = 0f;
-    //    zoomView原本的宽高
+    //zoomView原本的宽高
     private int zoomViewWidth = 0;
     private int zoomViewHeight = 0;
 
-    //    是否正在放大
+    //是否正在放大
     private boolean mScaling = false;
 
-    //    放大的view，默认为第一个子view
+    //放大的view，默认为第一个子view
     private View zoomView;
     public void setZoomView(View zoomView) {
         this.zoomView = zoomView;
     }
 
-    //    滑动放大系数，系数越大，滑动时放大程度越大
+    //滑动放大系数，系数越大，滑动时放大程度越大
     private float mScaleRatio = 0.4f;
     public void setmScaleRatio(float mScaleRatio) {
         this.mScaleRatio = mScaleRatio;
     }
 
-    //    最大的放大倍数
+    //最大的放大倍数
     private float mScaleTimes = 2f;
     public void setmScaleTimes(int mScaleTimes) {
         this.mScaleTimes = mScaleTimes;
     }
 
-    //    回弹时间系数，系数越小，回弹越快
+    //回弹时间系数，系数越小，回弹越快
     private float mReplyRatio = 0.5f;
     public void setmReplyRatio(float mReplyRatio) {
         this.mReplyRatio = mReplyRatio;
@@ -62,9 +59,9 @@ public class HeadZoomScrollView extends ScrollView {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-//        不可过度滚动，否则上移后下拉会出现部分空白的情况
+        //不可过度滚动，否则上移后下拉会出现部分空白的情况
         setOverScrollMode(OVER_SCROLL_NEVER);
-//        获得默认第一个view
+        //获得默认第一个view
         if (getChildAt(0) != null && getChildAt(0) instanceof ViewGroup && zoomView == null) {
             ViewGroup vg = (ViewGroup) getChildAt(0);
             if (vg.getChildCount() > 0) {
@@ -107,13 +104,13 @@ public class HeadZoomScrollView extends ScrollView {
     /**放大view*/
     private void setZoom(float s) {
         float scaleTimes = (float) ((zoomViewWidth+s)/(zoomViewWidth*1.0));
-//        如超过最大放大倍数，直接返回
+        //如超过最大放大倍数，直接返回
         if (scaleTimes > mScaleTimes) return;
 
         ViewGroup.LayoutParams layoutParams = zoomView.getLayoutParams();
         layoutParams.width = (int) (zoomViewWidth + s);
         layoutParams.height = (int)(zoomViewHeight*((zoomViewWidth+s)/zoomViewWidth));
-//        设置控件水平居中
+        //设置控件水平居中
         ((MarginLayoutParams) layoutParams).setMargins(-(layoutParams.width - zoomViewWidth) / 2, 0, 0, 0);
         zoomView.setLayoutParams(layoutParams);
     }

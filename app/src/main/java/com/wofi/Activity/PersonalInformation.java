@@ -32,9 +32,16 @@ public class PersonalInformation extends BaseActivity<ActivityPersonalInformatio
         setContentView(R.layout.activity_personal_information);
         setTitle("个人信息");
         showContentView();
-        Glide.with(this).load(R.drawable.avatar_default_login)
-                .bitmapTransform(new BlurTransformation(getApplicationContext()))
-                .into(bindingView.bgImage);
+        SharedPreferences sp1=getSharedPreferences("Head",MODE_PRIVATE);
+        if(!sp1.getString("头像","").equals(""))
+        {
+            showHeadImg(sp1.getString("头像",""));
+        }
+        else{
+            Glide.with(this).load(R.drawable.avatar_default_login)
+                    .bitmapTransform(new BlurTransformation(getApplicationContext()))
+                    .into(bindingView.bgImage);
+        }
         initImagePicker();
         bindingView.rlBg.setOnClickListener(this);
         textView= (TextView) findViewById(R.id.tv_phone);
@@ -78,7 +85,12 @@ public class PersonalInformation extends BaseActivity<ActivityPersonalInformatio
         if (resultCode == ImagePicker.RESULT_CODE_ITEMS) {
             if (data != null && requestCode == IMAGE_PICKER) {
                 ArrayList<ImageItem> images = (ArrayList<ImageItem>) data.getSerializableExtra(ImagePicker.EXTRA_RESULT_ITEMS);
-                showHeadImg(images.get(0).path);
+                SharedPreferences sp=getSharedPreferences("Head",MODE_PRIVATE);
+                SharedPreferences.Editor editor=sp.edit();
+                editor.clear();
+                editor.putString("头像",images.get(0).path);
+                editor.commit();
+                showHeadImg(sp.getString("头像",""));
             } else {
                 Toast.makeText(this, "没有数据", Toast.LENGTH_SHORT).show();
             }

@@ -2,13 +2,18 @@ package com.wofi.Activity;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -46,49 +51,128 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
+import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.uuzuche.lib_zxing.activity.CodeUtils;
 import com.uuzuche.lib_zxing.activity.ZXingLibrary;
+import com.wofi.Bluetooth.ControlCarActivity;
 import com.wofi.CheckNetwork;
+import com.wofi.Lock.Lockbike;
+import com.wofi.Lock.Unlock;
 import com.wofi.R;
+import com.wofi.Service.GsonService;
+import com.wofi.constants.Constants;
 import com.wofi.databinding.ActivityMainBinding;
 import com.wofi.navigation.NavigationActivity;
 import com.wofi.navigation.WalkRouteCalculateActivity;
+import com.wofi.utils.BicycleXY;
+import com.wofi.utils.Interaction;
+import com.wofi.utils.Journey;
+import com.wofi.utils.UserInfo;
+import com.wofi.view.CircleImageView;
 
+import java.io.IOException;
 import java.sql.Date;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener,AMapLocationListener,LocationSource,
-        BottomNavigationView.OnNavigationItemSelectedListener,View.OnClickListener,AMap.OnMarkerClickListener, AMap.InfoWindowAdapter{
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+import static com.wofi.application.MyApplication.bicycleId;
+import static com.wofi.application.MyApplication.bicycleXYlist;
+import static com.wofi.application.MyApplication.cash;
+import static com.wofi.application.MyApplication.currentborrow;
+import static com.wofi.application.MyApplication.endTime;
+import static com.wofi.application.MyApplication.firstinitmarker;
+import static com.wofi.application.MyApplication.getbicycle;
+import static com.wofi.application.MyApplication.journeyList;
+import static com.wofi.application.MyApplication.responceData1;
+import static com.wofi.application.MyApplication.startTime;
+import static com.wofi.application.MyApplication.userinfo;
+
+public class MainActivity extends
+        AppCompatActivity implements CompoundButton.OnCheckedChangeListener,AMapLocationListener,LocationSource,
+        BottomNavigationView.OnNavigationItemSelectedListener,View.OnClickListener,AMap.OnMarkerClickListener, AMap.InfoWindowAdapter, AMap.OnCameraChangeListener {
     private MapView mapView;
     private AMap aMap;
     private ImageView menubt;
     private LinearLayout nv_header;
 
+    private LatLng target;
+
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
     private FrameLayout framelayout;
+    private Marker marker;
+
+    private CircleImageView circleImageView;
+    private static int OVERLAY_PERMISSION_REQ_CODE = 1234;
+
 
     private ImageButton imageButton;
 
-    private TextView tx1;
-    private boolean t=true;
+    private AMapLocation mapLocation;
 
+    private MyReceiver reReceiver=null;
+    private int borrow_bike=0;
+
+    private TextView tx1,tx2;
+    private boolean t=true;
     private ActivityMainBinding mBinding;
 
     public static final int REQUEST_CODE = 1;
 
     private double lat;
     private double lon;
-    int count=0;
 
     public double end_lat;
     public double end_lon;
 
-    //定位服务类。此类提供单次定位、持续定位、地理围栏、最后位置相关功能
+    private boolean isrefresh = true;
+
+    //标识，用于判断是否只显示一次定位信息和用户重新定位
+    private boolean isFirstLoc = true;
+
+    private static String number;//保存扫码得到的车辆编号,设为全局变量，以便其他活动访问
+    private static double endT_lon;
+    private static double endT_lat;
+    private static int isreturn=0;
+
+    public static int getIsreturn() {
+        return isreturn;
+    }
+
+    public static void setIsreturn(int isreturn) {
+        MainActivity.isreturn = isreturn;
+    }
+    public static String getNumber(){
+        return number;
+    }
+    public static void setNumber(String number){
+        MainActivity.number = number;
+    }
+    public static double getEndT_lon(){
+        return endT_lon;
+    }
+    public static void setEndT_lon(double lon){
+        MainActivity.endT_lon = lon;
+    }
+    public static double getEndT_lat(){
+        return endT_lat;
+    }
+    public static void setEndT_lat(double lat){
+        MainActivity.endT_lat = lat;
+    }
+
+    //定位服务类
     private AMapLocationClient aMapLocationClient;
     private OnLocationChangedListener listener;
     private AMapLocationClientOption aMapLocationClientOption;//定位参数设置
@@ -99,6 +183,14 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         mBinding= DataBindingUtil.setContentView(this,R.layout.activity_main);
         mapView = (MapView)findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);  //此方法必须重写
+        //Log.e("消费金额", String.valueOf(Math.ceil(0.0406)));
+
+        SharedPreferences sp=getSharedPreferences("Login", Context.MODE_PRIVATE);
+        String username=sp.getString("Username","").trim();
+        Interaction.userInfo(username);
+        Interaction.getUserCash(username);
+        Interaction.queryBorrow(username);
+        firstinitmarker=true;
 
         initMap();
         initId();
@@ -112,6 +204,37 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         initButton();
         initToolbar();
         setupDrawerContent(navigationView);
+
+        SharedPreferences sp1=getSharedPreferences("Head",MODE_PRIVATE);
+        if(!sp1.getString("头像","").equals("")){
+            Glide.with(this).load(sp1.getString("头像",""))
+                    .into(circleImageView);
+        }
+
+        try{
+            if((currentborrow.getBorrowStartTime().equals(currentborrow.getBorrowEndTime()))&&(currentborrow.getBorrowStartTime()!=null))
+            {
+                MainActivity.setIsreturn(1);
+                Intent intent=new Intent(MainActivity.this,Unlock.class);
+                startService(intent);
+            }
+        }catch (Exception e){
+
+        }
+
+        if (MainActivity.getIsreturn()==1){
+            imageButton.setVisibility(View.GONE);
+        }
+        if(DialogActivity.getIsborrow()==1){
+            imageButton.setVisibility(View.GONE);
+        }
+
+        //注册广播接收器
+        reReceiver = new MyReceiver();
+        IntentFilter refilter = new IntentFilter();
+        refilter.addAction("com.wofi.Lock.Lockbike");
+        MainActivity.this.registerReceiver(reReceiver,refilter);
+
     }
 
     private void initId() {
@@ -126,10 +249,13 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         navigationView.inflateHeaderView(R.layout.header_layout);
         View drawview=navigationView.getHeaderView(0);
 
+        circleImageView= (CircleImageView) drawview.findViewById(R.id.icon_image);
+
         nv_header= (LinearLayout) drawview.findViewById(R.id.icon_layout);
         nv_header.setOnClickListener(this);
 
-        tx1= (TextView) drawview.findViewById(R.id.username);
+        tx1 = (TextView) drawview.findViewById(R.id.username);
+        tx2 = (TextView) drawview.findViewById(R.id.creditnow);
 
         SharedPreferences sp=getSharedPreferences("Login", Context.MODE_PRIVATE);
         String username=sp.getString("Username","").trim().replaceAll("(\\d{3})\\d{4}(\\d{4})", "$1****$2");
@@ -147,16 +273,24 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
     public void initMap()
     {
-        Button button1 = (Button) findViewById(R.id.location);
-        button1.setOnClickListener(new View.OnClickListener() {
+        ImageView imageView = (ImageView) findViewById(R.id.navi_poi);
+        ImageView imageView1 = (ImageView)findViewById(R.id.locate);
+        imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, NavigationActivity.class);
                 intent.putExtra("st_lat", Double.toString(lat));
                 intent.putExtra("st_lon", Double.toString(lon));
                 startActivity(intent);
-                //Log.i("mylocation", Double.toString(lat));
-
+            }
+        });
+        imageView1.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                isrefresh = true;
+                StartLocation();
+                aMap.clear();
+                initMarker();
             }
         });
         List<String> permissionList = new ArrayList<>();
@@ -192,13 +326,11 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         MyLocationStyle locationStyle = new MyLocationStyle();
         locationStyle.strokeColor(android.R.color.transparent);
         locationStyle.radiusFillColor(android.R.color.transparent);
-        //locationStyle.myLocationIcon(BitmapDescriptorFactory.fromResource(R.drawable.start));
-        //locationStyle.strokeColor(Color.BLUE);
         locationStyle.strokeWidth(5);
         aMap.setMyLocationStyle(locationStyle);
 
         aMap.setLocationSource(this);// 设置定位监听
-        aMap.getUiSettings().setMyLocationButtonEnabled(true);//设置默认定位按钮是否显示
+        aMap.getUiSettings().setMyLocationButtonEnabled(false);//设置默认定位按钮是否显示
         aMap.setMyLocationEnabled(true);// 设置为true表示显示定位层并可触发定位，false表示隐藏定位层并不可触发定位，默认是false
         aMap.setMyLocationType(AMap.LOCATION_TYPE_LOCATE);// 设置定位的类型为定位模式，参见类AMap。
         aMap.setMyLocationEnabled(true);// 设置为true表示系统定位按钮显示并响应点击，false表示隐藏，默认是false
@@ -258,21 +390,21 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     @Override
     protected void onResume() {
         super.onResume();
-        //在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
+        //重新绘制加载地图
         mapView.onResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        //在activity执行onPause时执行mMapView.onPause ()，暂停地图的绘制
+        //暂停地图的绘制
         mapView.onPause();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //在activity执行onSaveInstanceState时执行mMapView.onSaveInstanceState (outState)，保存地图当前的状态
+        //保存地图当前的状态
         mapView.onSaveInstanceState(outState);
     }
 
@@ -284,15 +416,14 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
-        if(listener!=null && aMapLocation!=null) {
+        if (listener != null && aMapLocation != null) {
             listener.onLocationChanged(aMapLocation);// 显示系统小蓝点
             if (aMapLocation.getErrorCode() == 0) {
                 //定位成功回调信息，设置相关消息
                 aMapLocation.getLocationType();//获取当前定位结果来源，如网络定位结果，详见定位类型表
-                if(t)
-                {
-                    aMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(new LatLng(lat,lon),16,0,0)));//设置地图缩放级别
-                    t=false;
+                if (t) {
+                    aMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(new LatLng(lat, lon), 16, 0, 0)));//设置地图缩放级别
+                    t = false;
                 }
                 aMapLocation.getAccuracy();//获取精度信息
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -308,68 +439,68 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 aMapLocation.getAdCode();//地区编码
                 lat = aMapLocation.getLatitude();//获取纬度
                 lon = aMapLocation.getLongitude();//获取经度
-                Marker marker;
-                Random random=new Random();
-                if(count<10) {
-                    for (int i = 0; i < 10; i++) {
-                        double la, lo;
-                        la = random.nextDouble()/50;
-                        lo = random.nextDouble()/50;
-                        LatLng latLng = new LatLng(lat, lon);
-                        switch(count%4)
-                        {
-                            case 0:
-                                latLng = new LatLng(lat +la,lon+lo);break;
-                            case 1:
-                                latLng = new LatLng(lat -la,lon+lo);break;
-                            case 2:
-                                latLng = new LatLng(lat +la,lon-lo);break;
-                            case 3:
-                                latLng = new LatLng(lat -la,lon-lo);break;
-                        }
-                        marker = aMap.addMarker(new MarkerOptions().position(latLng).title(null).snippet(null));
-                        //BitmapDescriptorFactory.fromResource(R.drawable.bike);
-                        marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.bike));
-                        LatLng end_location = marker.getPosition();
-                        end_lat = end_location.latitude;
-                        end_lon = end_location.longitude;
-                        //Log.i("st_lat", Double.toString(lat));
-                        //Log.i("st_lon", Double.toString(lon));
-                        //Log.i("end_lat", Double.toString(end_lat));
-                        //Log.i("end_lon", Double.toString(end_lon));
-                        //final Marker marker = aMap.addMarker(new MarkerOptions().position(latLng).title("自行车").snippet("Wofi"));
-                        count++;
+                MainActivity.setEndT_lat(lat);
+                MainActivity.setEndT_lon(lon);
+                if (isrefresh){
+                    aMap.moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(aMapLocation.getLatitude(),aMapLocation.getLongitude())));
+                    Interaction.bicycleLocation(lon, lat);
+                    isrefresh = false;
+                }
+                aMap.moveCamera(CameraUpdateFactory.changeLatLng(target));//设置屏幕中心点为显示中心
+                if (firstinitmarker) {
+                    if (getbicycle) {
+                        initMarker();
+                        firstinitmarker = false;
                     }
                 }
-                AMap.OnMarkerClickListener markerClickListener = new AMap.OnMarkerClickListener() {
-                    // marker 对象被点击时回调的接口，返回 true 则表示接口已响应事件，否则返回false
-                    @Override
-                    public boolean onMarkerClick(Marker marker) {
-                        Intent intent = new Intent(MainActivity.this, WalkRouteCalculateActivity.class);
-                        LatLng end_location = marker.getPosition();
-                        end_lat = end_location.latitude;
-                        end_lon = end_location.longitude;
-                        intent.putExtra("st_lat", Double.toString(lat));
-                        intent.putExtra("st_lon", Double.toString(lon));
-                        intent.putExtra("end_lat", Double.toString(end_lat));
-                        intent.putExtra("end_lon", Double.toString(end_lon));
-                        //Log.i("st_lat", Double.toString(lat));
-                        //Log.i("st_lon", Double.toString(lon));
-                        //Log.i("end_lat", Double.toString(end_lat));
-                        //Log.i("end_lon", Double.toString(end_lon));
-                        startActivity(intent);
-                        return false;
-                    }
-                };
-                aMap.setOnMarkerClickListener(markerClickListener);// 绑定 Marker 被点击事件
+                try {
+                    tx2.setText(String.valueOf(userinfo.getUserCredit()));
+                } catch (Exception e) {
+                    tx2.setText("80");
+                }
+
             } else {
                 //显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
-                Log.e("Tomato","location Error, ErrCode:"
+                Log.e("Tomato", "location Error, ErrCode:"
                         + aMapLocation.getErrorCode() + ", errInfo:"
                         + aMapLocation.getErrorInfo());
             }
         }
+    }
 
+    private void initMarker(){
+        for(BicycleXY bicycleXY:bicycleXYlist){
+            LatLng latLng = new LatLng(bicycleXY.getBicycleCurrentY(), bicycleXY.getBicycleCurrentX());
+            marker = aMap.addMarker(new MarkerOptions().position(latLng).title(null).snippet(null));
+            if(bicycleXY.getBicycleStatement()==-1){
+                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.hong));
+
+            }
+            else if(bicycleXY.getBicycleStatement()==1)
+            {
+                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.llll));
+            }
+            else{
+                marker.remove();
+            }
+        }
+        AMap.OnMarkerClickListener markerClickListener = new AMap.OnMarkerClickListener() {
+            // marker 对象被点击时回调的接口，返回 true 则表示接口已响应事件，否则返回false
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Intent intent = new Intent(MainActivity.this, WalkRouteCalculateActivity.class);
+                LatLng end_location = marker.getPosition();
+                end_lat = end_location.latitude;
+                end_lon = end_location.longitude;
+                intent.putExtra("st_lat", Double.toString(lat));
+                intent.putExtra("st_lon", Double.toString(lon));
+                intent.putExtra("end_lat", Double.toString(end_lat));
+                intent.putExtra("end_lon", Double.toString(end_lon));
+                startActivity(intent);
+                return false;
+            }
+        };
+        aMap.setOnMarkerClickListener(markerClickListener);// 绑定 Marker 被点击事件*
     }
 
     @Override
@@ -387,7 +518,6 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
                 new NavigationView.OnNavigationItemSelectedListener()
                 {
-
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem)
                     {
@@ -396,12 +526,43 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                         switch (menuItem.getItemId())
                         {
                             case R.id.action_trip:
-                                Intent in1=new Intent(MainActivity.this,MyJourneyActivity.class);
+                                Intent in1=new Intent(MainActivity.this,JourneyActivity.class);
                                 startActivity(in1);
                                 break;
                             case R.id.action_wallet:
-                                Intent in2=new Intent(MainActivity.this,MyWalletActivity.class);
-                                startActivity(in2);
+                                try {
+                                    if(cash.equals("199")){
+                                        Intent in2=new Intent(MainActivity.this,MyWalletActivity1.class);
+                                        startActivity(in2);
+                                        Intent intentservice1=new Intent(MainActivity.this,GsonService.class);
+                                        startService(intentservice1);
+                                    }
+                                    else{
+                                        Intent in6=new Intent(MainActivity.this,MyWalletActivity.class);
+                                        startActivity(in6);
+                                        Intent intentservice2=new Intent(MainActivity.this,GsonService.class);
+                                        startService(intentservice2);
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                                    dialog.setTitle("Error");
+                                    dialog.setMessage("与服务器失去联系");
+                                    dialog.setCancelable(false);
+                                    dialog.setPositiveButton("继续", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                                        }
+                                    });
+                                    dialog.setNegativeButton("退出", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                                        }
+                                    });
+                                    dialog.show();
+                                }
                                 break;
                             case R.id.action_baoxiu:
                                 Intent in3=new Intent(MainActivity.this,RepairActivity.class);
@@ -445,13 +606,17 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 break;
             case R.id.icon_layout:
                 drawerLayout.closeDrawer(GravityCompat.START);
-                //Toast.makeText(getApplicationContext(),"个人中心",Toast.LENGTH_SHORT).show();
                 Intent intent1=new Intent(MainActivity.this,PersonalInformation.class);
                 startActivityForResult(intent1,REQUEST_CODE);
                 break;
             case R.id.scan:
-                Intent intent=new Intent(MainActivity.this,ScanActivity.class);
-                startActivityForResult(intent,REQUEST_CODE);
+                if(cash.equals("199")||UserCashActivity.getPill()==1){
+                    Intent intent=new Intent(MainActivity.this,ScanActivity.class);
+                    startActivityForResult(intent,REQUEST_CODE);
+                }else {
+                    Intent incash = new Intent(MainActivity.this,WhereCash.class);
+                    startActivity(incash);
+                }
                 break;
             default:
                 break;
@@ -464,6 +629,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
          * 处理二维码扫描结果
          */
         // TODO Auto-generated method stub
+        //String result;
         if (requestCode == REQUEST_CODE) {
             //处理扫描结果（在界面上显示）
             if (null != data) {
@@ -472,13 +638,154 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                     return;
                 }
                 if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_SUCCESS) {
-                    String result = bundle.getString(CodeUtils.RESULT_STRING);
-                    Toast.makeText(this, "解析结果:" + result, Toast.LENGTH_LONG).show();
+                    String result = String.valueOf(Integer.parseInt(bundle.getString(CodeUtils.RESULT_STRING)));
+                    if (result.length() < 7 && isNumberic(result)){
+                        MainActivity.setNumber(result);//将编号传至驾车行程的Activity
+                        //上传编号与服务器交互
+                        SharedPreferences sp=getSharedPreferences("Login", Context.MODE_PRIVATE);
+                        String username=sp.getString("Username","").trim();
+                        Log.e("Username",username);
+                        //状态
+                        for (BicycleXY bicycleXY:bicycleXYlist)
+                        {
+                            if (bicycleXY.getBicycleId().equals(String.valueOf(Integer.parseInt(result))))
+                            {
+                                //状态为-1，长时间没有租借中或者损坏；状态为0，正在租借中
+                                if (bicycleXY.getBicycleStatement()==-1) {
+                                    new android.app.AlertDialog.Builder(MainActivity.this).setTitle("该车编号：" + result)
+                                            .setMessage("该车可能已损坏，请寻找其他可用车！")
+                                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                }
+                                            }).create().show();
+                                } else if (bicycleXY.getBicycleStatement()==0) {
+                                    new android.app.AlertDialog.Builder(MainActivity.this).setTitle("该车编号：" + result)
+                                            .setMessage("该车正在使用中，请寻找其他可用车！")
+                                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                }
+                                            }).create().show();
+                                } else {
+                                    imageButton.setVisibility(View.GONE);
+                                    Interaction.borrowBicycle(String.valueOf(Integer.parseInt(result)),username);
+                                    startTime=System.currentTimeMillis();
+                                    bicycleId=bicycleXY.getBicycleId();
+                                    //悬浮窗权限判断
+                                    if(Build.VERSION.SDK_INT>=23){
+                                        if (!Settings.canDrawOverlays(MainActivity.this)){
+                                            new android.app.AlertDialog.Builder(MainActivity.this).setTitle("注意" )
+                                                    .setMessage("悬浮窗权限未授权！")
+                                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            try{
+                                                                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+                                                                startActivityForResult(intent, OVERLAY_PERMISSION_REQ_CODE);
+                                                            }catch (Exception e) {
+                                                                e.printStackTrace();
+                                                            }
+                                                        }
+                                                    }).create().show();
+                                        } else {
+                                            new android.app.AlertDialog.Builder(MainActivity.this).setTitle("借车编号：" + result)
+                                                    .setMessage("如果自动开锁失败，请使用蓝牙开锁！")
+                                                    .setNeutralButton("蓝牙开锁",new DialogInterface.OnClickListener(){
+                                                        @Override
+                                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                                            Intent intent = new Intent(MainActivity.this, ControlCarActivity.class);
+                                                            startActivity(intent);
+                                                        }
+                                                    })
+                                                    .setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) {
+
+                                                        }
+                                                    }).create().show();
+                                            Intent inser = new Intent(MainActivity.this,Unlock.class);
+                                            startService(inser);
+                                        }
+                                    } else {
+                                        new android.app.AlertDialog.Builder(MainActivity.this).setTitle("借车编号：" + result)
+                                                .setMessage("如果自动开锁失败，请使用蓝牙开锁！")
+                                                .setNeutralButton("蓝牙开锁",new DialogInterface.OnClickListener(){
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                                        Intent intent = new Intent(MainActivity.this, ControlCarActivity.class);
+                                                        startActivity(intent);
+                                                    }
+                                                })
+                                                .setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+
+                                                    }
+                                                }).create().show();
+                                        Intent inser = new Intent(MainActivity.this,Unlock.class);
+                                        startService(inser);
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    } else {
+                        new android.app.AlertDialog.Builder(MainActivity.this).setTitle("提示")
+                                .setMessage("请检查该二维码的真实性！")
+                                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                    }
+                                }).create().show();
+                    }
                 } else if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_FAILED) {
-                    Toast.makeText(MainActivity.this, "解析二维码失败", Toast.LENGTH_LONG).show();
+                    new android.app.AlertDialog.Builder(MainActivity.this).setTitle("提示")
+                            .setMessage("解析二维码失败，请重新扫描！")
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            }).create().show();
                 }
             }
         }
+
+        if (requestCode == OVERLAY_PERMISSION_REQ_CODE){
+            if(Build.VERSION.SDK_INT>=23){
+                if (!Settings.canDrawOverlays(this)) {
+                    Toast.makeText(MainActivity.this, "权限授予失败，无法开启悬浮窗", Toast.LENGTH_SHORT).show();
+                } else {
+                    new android.app.AlertDialog.Builder(MainActivity.this).setTitle("借车编号：" + Integer.parseInt(String.valueOf(MainActivity.getNumber())))
+                            .setMessage("如果自动开锁失败，请使用蓝牙开锁！")
+                            .setNeutralButton("蓝牙开锁",new DialogInterface.OnClickListener(){
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    Intent intent = new Intent(MainActivity.this, ControlCarActivity.class);
+                                    startActivity(intent);
+                                }
+                            })
+                            .setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            }).create().show();
+                    Intent inser = new Intent(MainActivity.this,Unlock.class);
+                    startService(inser);
+                }
+            }
+        }
+    }
+
+    //判断扫描的二维码是否为数字
+    public static boolean isNumberic(String str) {
+            for (int i = 0; i < str.length(); i++) {
+                if (!Character.isDigit(str.charAt(i))) {
+                    return false;
+                }
+            }
+        return true;
     }
 
     @Override
@@ -508,22 +815,32 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 if (grantResults.length > 0) {
                     for (int result : grantResults) {
                         if (result != PackageManager.PERMISSION_GRANTED) {
-                            Toast.makeText(this, "必须同意所有权限才能使用本程序", Toast.LENGTH_SHORT).show();
-                            finish();
+                            new android.app.AlertDialog.Builder(MainActivity.this).setTitle("提示")
+                                    .setMessage("必须同意所有权限才能使用本程序")
+                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            finish();
+                                        }
+                                    }).create().show();
                             return;
                         }
                     }
                 } else {
-                    Toast.makeText(this, "发生未知错误", Toast.LENGTH_SHORT).show();
-                    finish();
+                    new android.app.AlertDialog.Builder(MainActivity.this).setTitle("提示")
+                            .setMessage("发生未知错误！")
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            }).create().show();
                 }
                 break;
             default:
         }
     }
     public void logoutdialog(){
-
-
         AlertDialog.Builder builder=new AlertDialog.Builder(this);
         builder.setTitle("退出登录");
         builder.setMessage("确定退出登录？");
@@ -536,7 +853,6 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                         SharedPreferences sp=getSharedPreferences("Login",MODE_PRIVATE);
                         SharedPreferences.Editor editor=sp.edit();editor.clear();
                         editor.commit();
-                        //Log.e("听说名字长才能找得到",sp.getString("token",""));
                         Intent intent=new Intent(MainActivity.this,LoginActivity.class);
                         startActivity(intent);
                         finish();
@@ -551,5 +867,45 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         builder.setPositiveButton("确定",dialogOnclicklistener);
         builder.setNegativeButton("取消",dialogOnclicklistener);
         builder.create().show();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if(DialogActivity.getIsborrow()==1){
+            imageButton.setVisibility(View.GONE);
+        }
+        Log.e("Size",String.valueOf(DialogActivity.getIsborrow()));
+        SharedPreferences sp=getSharedPreferences("Login", Context.MODE_PRIVATE);
+        String username=sp.getString("Username","").trim();
+        Intent intent=new Intent(MainActivity.this,GsonService.class);
+        stopService(intent);
+        Interaction.queryBorrow(username);
+        SharedPreferences sp1=getSharedPreferences("Head",MODE_PRIVATE);
+        if(!sp1.getString("头像","").equals("")){
+            Glide.with(this).load(sp1.getString("头像",""))
+                    .into(circleImageView);
+        }
+    }
+
+    @Override
+    public void onCameraChange(CameraPosition cameraPosition) {
+        target = cameraPosition.target;
+    }
+
+    @Override
+    public void onCameraChangeFinish(CameraPosition cameraPosition) {
+
+    }
+
+    public class MyReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+            borrow_bike = bundle.getInt("returned");
+            if (borrow_bike == 0 ) {
+                imageButton.setVisibility(View.VISIBLE);
+            } else {}
+        }
     }
 }

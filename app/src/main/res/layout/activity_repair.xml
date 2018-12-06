@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
+        android:layout_height="match_parent" >
         <android.support.v7.widget.Toolbar
-            android:id="@+id/repair"
+            android:id="@+id/repairtoolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
@@ -21,13 +22,139 @@
                 android:layout_gravity="center"
                 android:textSize="20dp"
                 android:textColor="@color/black"
-                android:text="我要报修"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
+                android:text="发现车辆故障" />
+
 
         </android.support.v7.widget.Toolbar>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_below="@+id/repairtoolbar"
+            tools:context="com.wofi.Activity.RepairActivity">
+
+            <TextView
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="输入车辆编码"
+                android:textSize="24dp"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center"/>
+
+            <com.wofi.utils.PayPwdEditText
+                android:id="@+id/ppe_pwd"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginLeft="13dp"
+                android:layout_marginRight="13dp"
+                android:layout_marginTop="5dp">
+
+            </com.wofi.utils.PayPwdEditText>
+
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:rowCount="4"
+                android:columnCount="2"
+                android:layout_marginTop="20dp"
+
+                android:orientation="vertical"
+                >
+                <CheckBox
+                    android:id="@+id/checkbox1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="车窗不清晰"
+                    android:layout_marginLeft="10dp"
+                    />
+                <CheckBox
+                    android:id="@+id/checkbox2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="二维码脱落"
+                    android:layout_marginLeft="10dp"
+                    />
+                <CheckBox
+                    android:id="@+id/checkbox3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="把手有问题"
+                    android:layout_marginLeft="10dp"
+                    />
+                <CheckBox
+                    android:id="@+id/checkbox4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="车灯有问题"
+                    android:layout_marginLeft="10dp"
+                    />
+                <CheckBox
+                    android:id="@+id/checkbox5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="气压不足"
+                    android:layout_marginLeft="50dp"
+                    />
+                <CheckBox
+                    android:id="@+id/checkbox6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="油量不足"
+                    android:layout_marginLeft="50dp"
+                    />
+                <CheckBox
+                    android:id="@+id/checkbox7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="电量不足"
+                    android:layout_marginLeft="50dp"
+                    />
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="其他"
+                    android:layout_marginLeft="50dp"
+                    />
+
+            </GridLayout>
+
+
+            <com.wofi.utils.EmojiFilter
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:gravity="top"
+                android:id="@+id/beizhu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minLines="5"
+                android:hint="备注："
+                android:background="@drawable/et"
+                android:layout_marginTop="35dp"
+                />
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="bottom"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:paddingBottom="8dp"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/rep"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/shap1"
+                    android:text="提交"
+                    />
+            </LinearLayout>
+
+
+        </LinearLayout>
 
     </RelativeLayout>
+
 </layout>

@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.wofi">
 
+    <!-- 悬浮窗相关权限 -->
+    <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <!-- 添加必要的权限 -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -47,11 +51,14 @@
     <!-- 用于申请获取蓝牙信息进行室内定位 -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <!-- 蓝牙相关权限 -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
         android:name="com.mob.MobApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/logo"
+        android:icon="@mipmap/carshare"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
@@ -61,7 +68,7 @@
         <!-- 配置高德地图Key -->
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="eec1a1188f8fa5d87c8cfec369a74464" />
+            android:value="58ceb7b46406a1fa6fc373a42d897506" />
 
         <!-- 通过AndroidManifest配置AppKey和AppSecret，如果你选择通过代码配置，则不需要配置以下meta-data -->
         <meta-data
@@ -105,7 +112,48 @@
         <activity android:name=".navigation.GPSNaviActivity" />
         <activity android:name=".navigation.PoiSearchActivity" />
         <activity android:name=".navigation.PiclocationActivity" />
-        <activity android:name=".navigation.WalkRouteCalculateActivity"></activity>
+        <activity android:name=".navigation.WalkRouteCalculateActivity" />
+        <activity android:name=".Bluetooth.ControlCarActivity" />
+        <activity
+            android:name=".Activity.DialogActivity"
+            android:label="@string/title_activity_dialog"
+            android:screenOrientation="portrait"
+            android:theme="@style/DialogStyle" />
+
+        <service android:name=".Lock.Unlock" />
+
+        <activity
+            android:name=".Lock.Lockbike"
+            android:label="@string/xc"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/DialogStyle" />
+
+        <service
+            android:name=".Service.GsonService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name=".Activity.JourneyActivity" />
+        <activity android:name=".Activity.MyWalletActivity1" />
+        <activity android:name=".Activity.RechargeActivity" />
+        <activity android:name=".Activity.RechargebillActivity" />
+        <activity android:name=".Activity.RechargeSucessActivity" />
+        <activity android:name=".Activity.ReturnCashActivity" />
+        <activity android:name=".Activity.UserCashActivity" />
+        <activity android:name=".Activity.PaySuccess2" />
+        <activity android:name=".Activity.CashPledgeActivity" />
+        <activity android:name=".Activity.IllegalParkingActivity" />
+        <activity android:name=".Activity.NotFindBikeActivity" />
+        <activity android:name=".Activity.NotLockActivity" />
+        <activity android:name=".Activity.RechangeInstructionsActivity" />
+        <activity
+            android:name=".Activity.WhereCash"
+            android:label="@string/attention"
+            android:screenOrientation="portrait"
+            android:theme="@style/DialogStyle" />
+        <activity android:name=".Activity.UseDirection" />
+        <activity android:name=".Activity.MytripActivity"></activity>
     </application>
 
 </manifest>

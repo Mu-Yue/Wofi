@@ -16,7 +16,7 @@
             android:id="@+id/rl_bg"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:background="@color/colorTheme">
+            android:background="@color/alpha_black">
 
             <ImageView
                 android:id="@+id/bg_image"
@@ -28,7 +28,7 @@
                 android:id="@+id/profile_image"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
-                android:src="@mipmap/ic_launcher"
+                android:src="@drawable/usrmode"
                 app:border_color="@color/white"
                 app:border_width="2dp"
                 android:layout_centerVertical="true"

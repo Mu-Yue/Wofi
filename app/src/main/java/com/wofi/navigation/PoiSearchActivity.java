@@ -118,7 +118,6 @@ public class PoiSearchActivity extends AppCompatActivity implements TextWatcher,
                     tips.add(tip);
                 }
             }
-            //tips.addAll(list);
             mAdapter.notifyDataSetChanged();
         }
     }

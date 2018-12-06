@@ -34,6 +34,33 @@
             android:layout_below="@+id/userguide"
             android:orientation="vertical">
 
+            <RelativeLayout
+                android:id="@+id/sysm"
+                android:layout_width="match_parent"
+                android:background="@drawable/home_click_bg"
+                android:layout_height="48dp"
+                android:layout_marginTop="10dp"
+                android:clickable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingLeft="30dp"
+                android:paddingRight="16dp">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="使用说明"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorContent"
+                    android:textSize="15sp" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/forward" />
+            </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/kbls"
@@ -48,7 +75,6 @@
                 android:paddingRight="16dp"
                 android:weightSum="1">
 
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -62,34 +88,6 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_weight="0.01"
-                    android:layout_alignParentRight="true"
-                    android:src="@drawable/forward" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/fxclgz"
-                android:layout_width="match_parent"
-                android:background="@drawable/home_click_bg"
-                android:layout_height="48dp"
-                android:layout_marginTop="10dp"
-                android:clickable="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingLeft="30dp"
-                android:paddingRight="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="发现车辆故障"
-                    android:textStyle="bold"
-                    android:textColor="@color/colorContent"
-                    android:textSize="15sp" />
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
                     android:layout_alignParentRight="true"
                     android:src="@drawable/forward" />
 

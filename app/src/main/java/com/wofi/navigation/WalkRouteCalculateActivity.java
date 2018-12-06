@@ -34,10 +34,7 @@ public class WalkRouteCalculateActivity extends BaseActivity {
         String end_latitude=intent.getStringExtra("end_lat");
         String end_longtitude=intent.getStringExtra("end_lon");
 
-        //Log.i("st_lat",start_lat);
-        //Log.i("st_lon",start_lon);
-        //Log.i("en_lat",end_latitude);
-        //Log.i("en_lon",end_longtitude);
+
         st_la=Double.parseDouble(start_lat);
         st_lo=Double.parseDouble(start_lon);
         en_la=Double.parseDouble(end_latitude);

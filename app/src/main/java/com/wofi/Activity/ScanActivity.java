@@ -1,24 +1,39 @@
 package com.wofi.Activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.uuzuche.lib_zxing.activity.CaptureFragment;
 import com.uuzuche.lib_zxing.activity.CodeUtils;
+import com.wofi.Bluetooth.ControlCarActivity;
 import com.wofi.R;
+
+import java.text.DecimalFormat;
 
 public class ScanActivity extends AppCompatActivity {
 
     private CaptureFragment captureFragment;
-    //private Toolbar toolbar1;
-    //private ImageView backbt;
+    private ImageView input = null;
+    private ImageView light = null;
+    private ImageView bluth = null;
+    private TextView tv_input = null;
+    private TextView tv_light = null;
+    private TextView tv_bluth = null;
+
+    int isFinish = 0;
+    private MyReceiver receiver=null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -33,15 +48,49 @@ public class ScanActivity extends AppCompatActivity {
         //替换我们的扫描控件
         getSupportFragmentManager().beginTransaction().replace(R.id.fl_my_container,captureFragment).commit();
         initView();
+        //注册广播接收器
+        receiver = new MyReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.wofi.Activity.DialogActivity");
+        ScanActivity.this.registerReceiver(receiver,filter);
 
     }
     public static boolean isOpen = false;
 
     private void initView() {
-        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.linear1);
-        linearLayout.setOnClickListener(new View.OnClickListener() {
+        input = (ImageView)findViewById(R.id.input1);
+        light = (ImageView)findViewById(R.id.light1);
+        bluth = (ImageView)findViewById(R.id.bluth1);
+        tv_input = (TextView)findViewById(R.id.input2);
+        tv_light = (TextView)findViewById(R.id.light2);
+        tv_bluth = (TextView)findViewById(R.id.bluth2);
+
+        //手动输入
+        input.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View v) {
+            public void onClick(View arg0) {
+                // TODO Auto-generated method stub
+                Intent intent = new Intent();
+                intent.setClass(ScanActivity.this, DialogActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        tv_input.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setClass(ScanActivity.this, DialogActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        //手电筒
+        light.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                // TODO Auto-generated method stub
                 if (!isOpen) {
                     CodeUtils.isLightEnable(true);
                     isOpen = true;
@@ -49,9 +98,41 @@ public class ScanActivity extends AppCompatActivity {
                     CodeUtils.isLightEnable(false);
                     isOpen = false;
                 }
-
             }
         });
+
+        tv_light.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                if (!isOpen) {
+                    CodeUtils.isLightEnable(true);
+                    isOpen = true;
+                } else {
+                    CodeUtils.isLightEnable(false);
+                    isOpen = false;
+                }
+            }
+        });
+
+        //蓝牙解锁
+        bluth.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View arg0) {
+                // TODO Auto-generated method stub
+                Intent intent = new Intent(ScanActivity.this, ControlCarActivity.class);
+                startActivity(intent);
+            }
+        });
+        tv_bluth.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ScanActivity.this, ControlCarActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
     CodeUtils.AnalyzeCallback analyzeCallback=new CodeUtils.AnalyzeCallback() {
         @Override
@@ -78,9 +159,23 @@ public class ScanActivity extends AppCompatActivity {
         }
     };
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    /**
+     * 获取广播数据,结束本页面
+     * @author jiqinlin
+     */
+    public class MyReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+            isFinish = bundle.getInt("over_fin");
+            if (isFinish == 1){
+                ScanActivity.this.finish();
+            }
+        }
     }
 }

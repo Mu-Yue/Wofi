@@ -16,6 +16,16 @@ import android.view.Window;
 import com.wofi.Activity.LoginActivity;
 import com.wofi.Activity.MainActivity;
 import com.wofi.R;
+import com.wofi.constants.Constants;
+import com.wofi.utils.Interaction;
+
+import java.io.IOException;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+import static com.wofi.application.MyApplication.cash;
 
 public class Welcome extends Activity {
     private static final int TIME = 1500;
@@ -50,6 +60,12 @@ public class Welcome extends Activity {
         super.onCreate(savedInstanceState);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉标题栏 第一种方法
         setContentView(R.layout.activity_welcome);
+        SharedPreferences sp=getSharedPreferences("Login", Context.MODE_PRIVATE);
+        if(!sp.getString("Username","").equals(""))
+        {
+            Interaction.currentBorrow(sp.getString("Username",""));
+        }
+
         init();
     }
 
@@ -60,8 +76,6 @@ public class Welcome extends Activity {
         isFirstIn = preferences.getBoolean("isFirstIn",true);
         SharedPreferences sp=getSharedPreferences("Login", Context.MODE_PRIVATE);
         String Token=sp.getString("token","").trim();
-        //Log.e("哈克哈就开始的",Token);
-        //Log.e("sad as as",getLocalMacAddress());
 
         if (!isFirstIn){
             if(Token.equals(getLocalMacAddress().trim())) {
@@ -101,6 +115,30 @@ public class Welcome extends Activity {
         WifiManager wifi = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = wifi.getConnectionInfo();
         return info.getMacAddress();
+    }
+    private void initCash()
+    {
+        Thread t=new Thread(new Runnable() {
+            @Override
+            public void run() {
+                long begin=System.currentTimeMillis();
+                SharedPreferences sp=getSharedPreferences("Login", Context.MODE_PRIVATE);
+                String username=sp.getString("Username","").trim();
+                OkHttpClient client=new OkHttpClient();
+                Request request=new Request.Builder()
+                        .url(Constants.GET_CASH_URL+username)
+                        .build();
+                try {
+                    Response response=client.newCall(request).execute();
+                    cash=response.body().string();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                long end=System.currentTimeMillis();
+                Log.e("线程1", String.valueOf(end-begin)+"ms");
+            }
+        });
+        t.start();
     }
 
 }

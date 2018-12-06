@@ -1,41 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">>
 <RelativeLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentStart="true">
+    <include layout="@layout/videoview"/>
 
-    <Button
-        android:id="@+id/Phone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/password"
-        android:layout_alignStart="@+id/password"
-        android:layout_below="@+id/password"
-        android:layout_marginLeft="10dp"
-        android:background="@null"
-        android:text="收不到短信，试试语音验证码"
-        android:textColor="#FF0000" />
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="68dp"
-        app:srcCompat="@mipmap/logo1"
+        android:layout_marginTop="64dp"
+        android:src="@drawable/carshare1"
         android:contentDescription=""
         tools:ignore="ContentDescription"
+        android:foregroundGravity="center"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:foregroundGravity="center"/>
+        android:layout_centerHorizontal="true" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/imageView"
-        android:layout_centerVertical="true"
         android:layout_marginBottom="5dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
@@ -48,23 +43,29 @@
             android:id="@+id/Num"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
             android:padding="10dp"
             android:text="@string/_86"
-            android:textSize="20sp" />
+            android:textSize="20dp"
+            android:textColor="@color/white"/>
 
 
         <EditText
             android:id="@+id/etNum"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:padding="10dp"
+            android:paddingBottom="8dp"
+            android:layout_alignTop="@+id/Num"
+            android:layout_alignBottom="@+id/Num"
+            android:layout_toRightOf="@+id/Num"
             android:inputType="number"
             android:hint="请输入手机号"
-            android:textSize="40px" />
+            android:textSize="18dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"/>
 
-    </LinearLayout>
-    <LinearLayout
+    </RelativeLayout>
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/linearLayout"
@@ -79,72 +80,88 @@
             android:id="@+id/Pin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
             android:padding="10dp"
             android:text="验证码"
-            android:textSize="20sp" />
+            android:textSize="20dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"/>
 
 
         <EditText
             android:id="@+id/etPin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_weight="30"
+            android:layout_toRightOf="@+id/Pin"
+            android:layout_alignTop="@+id/Pin"
+            android:layout_alignBottom="@+id/Pin"
             android:inputType="number"
-            android:padding="10dp"
-            android:textSize="40px"
-            android:hint="请输入验证码" />
+            android:padding="8dp"
+            android:textSize="18dp"
+            android:hint="请输入验证码"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"/>
 
 
         <Button
             android:id="@+id/getPin"
-            android:layout_width="wrap_content"
+            android:background="@drawable/shap1"
+            android:layout_width="125dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_alignParentRight="true"
             android:text="获取验证码" />
 
-    </LinearLayout>
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/Phone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/password"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:background="@null"
+        android:text="收不到短信，试试语音验证码"
+        android:textColor="#FF0000"
+        android:layout_below="@+id/password" />
 
     <Button
         android:id="@+id/checkPin"
+        android:background="@drawable/shap1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="62dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_below="@+id/Phone"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:text="开始"
-        android:layout_below="@+id/password"
         android:layout_centerHorizontal="true" />
 
     <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_below="@id/checkPin">
-
-        <Button
-            android:id="@+id/Clause"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            android:text="《用车服务条款》"
-            android:textColor="#FF0000"
-            android:layout_marginRight="35dp"
-            android:layout_marginEnd="35dp"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignBottom="@+id/textView2" />
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/checkPin"
+        android:layout_centerHorizontal="true">
 
         <TextView
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="点击开始，即表示已阅读并同意"
-            android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/Clause"
-            android:layout_toStartOf="@+id/Clause"
-            android:layout_marginRight="17dp"
-            android:layout_marginEnd="17dp" />
+            android:layout_marginLeft="8dp"
+            />
+
+        <Button
+            android:id="@+id/Clause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:layout_toRightOf="@+id/textView2"
+            android:text="《用车服务条款》"
+            android:textColor="#FF0000"
+            android:layout_alignBottom="@+id/textView2" />
     </RelativeLayout>
 
 </RelativeLayout>
-    </layout>
+</RelativeLayout>

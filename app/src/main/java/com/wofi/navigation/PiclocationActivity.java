@@ -189,7 +189,6 @@ public class PiclocationActivity extends Activity implements LocationSource, AMa
             //设置为高精度定位模式
             mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
             //设置为定位一次
-//            mLocationOption.setOnceLocation(true);
             //设置定位参数
             mlocationClient.setLocationOption(mLocationOption);
             // 此方法为每隔固定时间会发起一次定位请求，为了减少电量消耗或网络流量消耗，
@@ -222,7 +221,6 @@ public class PiclocationActivity extends Activity implements LocationSource, AMa
         if (mListener != null && amapLocation != null) {
             if (amapLocation != null&&amapLocation.getErrorCode() == 0) {
                 if(isFirstTime){//只要第一次的数据，当然，也可以在这里关闭定位
-                    //mlocationClient.stopLocation();//停止定位
                     mListener.onLocationChanged(amapLocation);// 显示系统小蓝点
                     lvHolder.title = "[位置]";
                     lvHolder.address = amapLocation.getProvider()+amapLocation.getCity()+amapLocation.getStreet()+amapLocation.getStreetNum();
@@ -259,9 +257,6 @@ public class PiclocationActivity extends Activity implements LocationSource, AMa
         poiSearch.setOnPoiSearchListener(this);
         //搜索位置及范围
         poiSearch.setBound(new PoiSearch.SearchBound(lvHolder.lp, 1000));
-        //同步搜索
-        // poiSearch.searchPOI();//不能在主线程实现耗时操作
-        //异步搜索
         poiSearch.searchPOIAsyn();
     }
 
@@ -402,10 +397,8 @@ public class PiclocationActivity extends Activity implements LocationSource, AMa
                 data.remove(0);
                 data.add(0,lvHolder);
             } else {
-                //ToastUtil.show(ReGeocoderActivity.this, R.string.no_result);
             }
         } else {
-            //ToastUtil.showerror(this, rCode);
         }
     }
 
@@ -430,10 +423,6 @@ public class PiclocationActivity extends Activity implements LocationSource, AMa
                 holder.getView(R.id.rl_tv_subit).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //Intent intent = new Intent(mContext,NavigationActivity.class);
-                        // intent.putExtra("value",listViewHoldier.lp);
-                        // intent.putExtra("address",listViewHoldier.address);
-                        // setResult(RESULT_OK,intent);
                         Tip tip = new Tip();
                         tip.setDistrict(listViewHoldier.address);
                         tip.setPostion(listViewHoldier.lp);

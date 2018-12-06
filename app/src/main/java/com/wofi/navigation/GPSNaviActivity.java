@@ -150,13 +150,6 @@ public class GPSNaviActivity extends AppCompatActivity implements AMapNaviViewLi
      */
     @Override
     public void onInitNaviSuccess() {
-//        int strategy=0;
-//        try {
-//            strategy = mAMapNavi.strategyConvert(true, false, false, false, false);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        mAMapNavi.calculateDriveRoute(sList, eList, mWayPointList, strategy);
     }
 
     @Override
